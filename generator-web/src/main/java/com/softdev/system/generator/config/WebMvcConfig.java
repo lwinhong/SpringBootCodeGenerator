@@ -1,15 +1,12 @@
 package com.softdev.system.generator.config;
 
-
-// import com.alibaba.fastjson.support.config.FastJsonConfig;
-// import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import jakarta.servlet.DispatcherType;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -18,20 +15,29 @@ import com.alibaba.fastjson2.JSONWriter;
 import com.alibaba.fastjson2.support.config.FastJsonConfig;
 import com.alibaba.fastjson2.support.spring6.http.converter.FastJsonHttpMessageConverter;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 /**
-*  2019-2-11 liutf WebMvcConfig 整合 cors 和 SpringMvc MessageConverter
-*/
+ * 2019-2-11 liutf WebMvcConfig 整合 cors 和 SpringMvc MessageConverter
+ */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
+    @Value("${file-save-path}")
+    private String fileSavePath;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/statics/**").addResourceLocations("classpath:/statics/");
+        registry.addResourceHandler("/statics/**")
+                .addResourceLocations("classpath:/statics/");
+        registry.addResourceHandler("/upload/**")
+                .addResourceLocations("file:" + new File(fileSavePath).getAbsolutePath() + File.separator);
     }
+
     @Bean
     public FilterRegistrationBean xssFilterRegistration() {
         FilterRegistrationBean registration = new FilterRegistrationBean();
@@ -43,27 +49,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         return registration;
     }
 
-    // @Override
-    // public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-    //     converters.clear();
-    //     //FastJsonHttpMessageConverter
-    //     FastJsonHttpMessageConverter fastConverter = new FastJsonHttpMessageConverter();
 
-    //     List<MediaType> fastMediaTypes = new ArrayList<>();
-    //     fastMediaTypes.add(MediaType.APPLICATION_JSON_UTF8);
-    //     fastConverter.setSupportedMediaTypes(fastMediaTypes);
-
-    //     FastJsonConfig fastJsonConfig = new FastJsonConfig();
-    //     fastJsonConfig.setCharset(StandardCharsets.UTF_8);
-    //     fastConverter.setFastJsonConfig(fastJsonConfig);
-
-    //     //StringHttpMessageConverter
-    //     StringHttpMessageConverter stringConverter = new StringHttpMessageConverter();
-    //     stringConverter.setDefaultCharset(StandardCharsets.UTF_8);
-    //     stringConverter.setSupportedMediaTypes(fastMediaTypes);
-    //     converters.add(stringConverter);
-    //     converters.add(fastConverter);
-    // }
     /**
      * FASTJSON2升级 by https://zhengkai.blog.csdn.net/
      * https://blog.csdn.net/moshowgame/article/details/138013669
@@ -81,5 +67,4 @@ public class WebMvcConfig implements WebMvcConfigurer {
         converter.setSupportedMediaTypes(Collections.singletonList(MediaType.APPLICATION_JSON));
         converters.add(0, converter);
     }
-
 }

@@ -59,4 +59,4 @@ OEM:
   returnUtilSuccess: ReturnT.success
   returnUtilFailure: ReturnT.error
   outputStr: devtools.cn
-  mode: CDN
+  mode: local
