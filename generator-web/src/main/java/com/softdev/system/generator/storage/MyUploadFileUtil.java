@@ -1,20 +1,44 @@
-package com.softdev.system.generator.util;
+package com.softdev.system.generator.storage;
 
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Service
 @Slf4j
-public class FileUtil {
-    private final String basePath;
-    SimpleDateFormat sdf = new SimpleDateFormat("/yyyy.MM.dd/");
+public class MyUploadFileUtil {
 
-    public FileUtil(String basePath) {
-        this.basePath = basePath;
+    @Value("${file-save-path}")
+    private String uploadPath;//配置文件中的文件保存地址
+
+    private final String uploadRoot;
+    private final SimpleDateFormat sdf = new SimpleDateFormat("/yyyy.MM.dd/");
+
+    public MyUploadFileUtil() {
+        this.uploadRoot = getUploadBasePath();
+    }
+
+    private String getUploadBasePath() {
+        var path = StringUtils.isNotEmpty(uploadPath) ? uploadPath : "upload";
+        var uploadDir = new File(path).getAbsolutePath();
+        File dir = new File(uploadDir);
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+        return uploadDir + File.separator;
     }
 
     public List<UploadedInfo> uploadFiles(MultipartFile[] files, HttpServletRequest request) throws Exception {
@@ -44,7 +68,7 @@ public class FileUtil {
         // 在 uploadPath 文件夹中通过日期对上传的文件归类保存
         // 比如：/2024/06/11/cf13891e-4b95-4000-81eb-b6d70ae44930.png
         String format = sdf.format(new Date());
-        File folder = new File(basePath + format);
+        File folder = new File(uploadRoot + format);
         if (!folder.isDirectory()) {
             folder.mkdirs();
         }
@@ -76,13 +100,33 @@ public class FileUtil {
 
     public void deleteUploadedFile(UploadedInfo info) {
         try {
-            File f = new File(this.basePath + info.fileDir, info.fileNewName);
+            File f = new File(this.uploadRoot + info.fileDir, info.fileNewName);
             if (f.exists()) {
                 f.delete();
             }
         } catch (Exception e) {
             log.error("删除文件失败", e);
         }
+    }
+
+    public void downloadLocal(String file, HttpServletResponse response) throws IOException {
+        var fullName = Paths.get(uploadRoot, file).toFile();
+
+        response.reset();
+        response.setContentType("application/octet-stream");
+        String filename = fullName.getName();
+        response.addHeader("Content-Disposition", "attachment; filename="
+                + URLEncoder.encode(filename, "UTF-8"));
+        ServletOutputStream outputStream = response.getOutputStream();
+        byte[] b = new byte[1024];
+        int len;
+        // 读到流中
+        var inputStream = new FileInputStream(fullName);// 文件的存放路径
+        //从输入流中读取一定数量的字节，并将其存储在缓冲区字节数组中，读到末尾返回-1
+        while ((len = inputStream.read(b)) > 0) {
+            outputStream.write(b, 0, len);
+        }
+        inputStream.close();
     }
 
     public static class UploadedInfo {

@@ -4,28 +4,21 @@ import com.softdev.system.generator.entity.ClassInfo;
 import com.softdev.system.generator.entity.ParamInfo;
 import com.softdev.system.generator.entity.ReturnT;
 import com.softdev.system.generator.service.GeneratorService;
-import com.softdev.system.generator.util.FileUtil;
+import com.softdev.system.generator.storage.MyUploadFileUtil;
 import com.softdev.system.generator.util.MapUtil;
 import com.softdev.system.generator.util.TableParseUtil;
 import com.softdev.system.generator.util.ValueUtil;
-import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLEncoder;
-import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Map;
 
@@ -105,24 +98,8 @@ public class GeneratorController {
         return ReturnT.ok().put("outputJson", result);
     }
 
-    @Value("${file-save-path}")
-    private String uploadPath;
-
-    private static String BASE_PATH;
-
-    private String getUploadBasePath() {
-        if (StringUtils.isNotEmpty(BASE_PATH)) {
-            return BASE_PATH;
-        }
-        var path = StringUtils.isNotEmpty(uploadPath) ? uploadPath : "upload";
-        var uploadDir = new File(path).getAbsolutePath();
-        File dir = new File(uploadDir);
-        if (!dir.exists()) {
-            dir.mkdir();
-        }
-        BASE_PATH = uploadDir + File.separator;
-        return BASE_PATH;
-    }
+    @Autowired
+    private MyUploadFileUtil fileUtil;
 
     @PostMapping("/code/generate4file")
     @ResponseBody
@@ -130,7 +107,15 @@ public class GeneratorController {
                                      @RequestParam("options") String options,
                                      HttpServletRequest request) throws Exception {
         try {
-            var result = new FileUtil(getUploadBasePath()).uploadFiles(files, request);
+            //1.保存文件
+            var result = fileUtil.uploadFiles(files, request);
+
+            //2.读取文件，解析内容
+
+            //3.根据解析的内容，生成代码
+
+            //4.返回结果（按层级放好类文件，压缩成zip文件，然后下载url）
+
             return ReturnT.ok(Map.of("fileResult", result));
         } catch (Exception e) {
             return ReturnT.error("You failed to upload because " + e.getMessage());
@@ -138,24 +123,13 @@ public class GeneratorController {
     }
 
     @RequestMapping("/download")
-    public void downloadLocal(String file, HttpServletResponse response) throws IOException {
-        var fullName = Paths.get(getUploadBasePath(), file).toFile();
-
-        response.reset();
-        response.setContentType("application/octet-stream");
-        String filename = fullName.getName();
-        response.addHeader("Content-Disposition", "attachment; filename="
-                + URLEncoder.encode(filename, "UTF-8"));
-        ServletOutputStream outputStream = response.getOutputStream();
-        byte[] b = new byte[1024];
-        int len;
-        // 读到流中
-        var inputStream = new FileInputStream(fullName);// 文件的存放路径
-        //从输入流中读取一定数量的字节，并将其存储在缓冲区字节数组中，读到末尾返回-1
-        while ((len = inputStream.read(b)) > 0) {
-            outputStream.write(b, 0, len);
+    public ReturnT download(String file, HttpServletResponse response) throws IOException {
+        try {
+            fileUtil.downloadLocal(file, response);
+            return ReturnT.ok();
+        } catch (Exception e) {
+            return ReturnT.error("You failed to upload because " + e.getMessage());
         }
-        inputStream.close();
     }
 
 }
