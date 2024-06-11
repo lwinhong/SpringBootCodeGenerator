@@ -24,6 +24,16 @@ server:
 
 file-save-path: upload
 
+file-storage:
+  localStorage:
+    root-path: D:\360downloads\IDEA-workplace\SurveyKing-master\survery-server\files # 这里写本机任意文件保存路径
+    pathStrategy: byDate # byDate| byId | byNo
+    nameStrategy: seqAndOriginalName  # seqAndOriginalName | originalNameAndSeq | seq | uuid
+    dateFormat: yyMM/dd
+
+upload:
+  requestPre: '/images' # 前端访问加上前缀映射
+
 spring:
   banner:
       charset: UTF-8
