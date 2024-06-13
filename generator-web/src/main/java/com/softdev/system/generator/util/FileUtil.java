@@ -2,13 +2,14 @@ package com.softdev.system.generator.util;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Slf4j
 public class FileUtil {
@@ -18,6 +19,10 @@ public class FileUtil {
 
     public static String getFileName(String fileName) {
         return fileName.substring(0, fileName.lastIndexOf("."));
+    }
+
+    public static String getNewFileId(){
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
     public static String getContent(String filePath) {
@@ -45,6 +50,36 @@ public class FileUtil {
             Files.write(path, Collections.singletonList(content));
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 功能:压缩多个文件成一个zip文件
+     *
+     * @param srcfile：源文件列表
+     * @param zipfile：压缩后的文件
+     */
+    public static void zipFiles(File[] srcfile, File zipfile) throws Exception {
+        byte[] buf = new byte[1024];
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipfile))) {
+            //ZipOutputStream类：完成文件或文件夹的压缩
+
+            for (File file : srcfile) {
+                try (FileInputStream in = new FileInputStream(file)) {
+                    // 给列表中的文件单独命名
+                    out.putNextEntry(new ZipEntry(file.getName()));
+                    int len;
+                    while ((len = in.read(buf)) > 0) {
+                        out.write(buf, 0, len);
+                    }
+                    out.closeEntry();
+                }
+            }
+            out.close();
+            System.out.println("压缩完成.");
+        } catch (Exception e) {
+            log.error("压缩失败", e);
+            throw e;
         }
     }
 }

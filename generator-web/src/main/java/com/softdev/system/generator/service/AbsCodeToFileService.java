@@ -13,5 +13,5 @@ public abstract class AbsCodeToFileService implements CodeToFileService {
                                                  HttpServletRequest request) throws Exception;
 
     @Override
-    public abstract String generateBySql(String content, String options) throws Exception;
+    public abstract UploadedInfo generateBySql(String content, String options) throws Exception;
 }

@@ -10,5 +10,5 @@ public interface CodeToFileService {
     ReturnT generateByUploadFile(String options, List<UploadedInfo> uploadedInfoList,
                                  HttpServletRequest request) throws Exception;
 
-    String generateBySql(String content, String options) throws Exception;
+    UploadedInfo generateBySql(String content, String options) throws Exception;
 }

@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -104,9 +103,9 @@ public class GeneratorController {
     }
 
     @RequestMapping("/download")
-    public ReturnT download(String file, HttpServletResponse response) throws IOException {
+    public ReturnT download(String fileId, HttpServletResponse response) throws IOException {
         try {
-            fileUtil.downloadLocal(file, response);
+            fileUtil.downloadLocal(fileId, response);
             return ReturnT.ok();
         } catch (Exception e) {
             return ReturnT.error("You failed to upload because " + e.getMessage());
