@@ -1,17 +1,14 @@
 package com.softdev.system.generator.controller;
 
-import com.softdev.system.generator.entity.ClassInfo;
 import com.softdev.system.generator.entity.ParamInfo;
 import com.softdev.system.generator.entity.ReturnT;
+import com.softdev.system.generator.service.CodeToFileService;
 import com.softdev.system.generator.service.GeneratorService;
-import com.softdev.system.generator.storage.MyUploadFileUtil;
-import com.softdev.system.generator.util.MapUtil;
-import com.softdev.system.generator.util.TableParseUtil;
+import com.softdev.system.generator.myUpload.MyUploadFileUtil;
 import com.softdev.system.generator.util.ValueUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -61,45 +58,27 @@ public class GeneratorController {
     @PostMapping("/code/generate")
     @ResponseBody
     public ReturnT generateCode(@RequestBody ParamInfo paramInfo) throws Exception {
-        //log.info(JSON.toJSONString(paramInfo.getOptions()));
-        if (StringUtils.isEmpty(paramInfo.getTableSql())) {
-            return ReturnT.error("表结构信息为空");
+        try {
+            return generatorService.generateCode(paramInfo);
+        } catch (Exception e) {
+            return ReturnT.error("生成失败： " + e.getMessage());
         }
+    }
 
-        //1.Parse Table Structure 表结构解析
-        ClassInfo classInfo = null;
-        String dataType = MapUtil.getString(paramInfo.getOptions(), "dataType");
-        if ("sql".equals(dataType) || dataType == null) {
-            classInfo = TableParseUtil.processTableIntoClassInfo(paramInfo);
-        } else if ("json".equals(dataType)) {
-            //JSON模式：parse field from json string
-            classInfo = TableParseUtil.processJsonToClassInfo(paramInfo);
-            //INSERT SQL模式：parse field from insert sql
-        } else if ("insert-sql".equals(dataType)) {
-            classInfo = TableParseUtil.processInsertSqlToClassInfo(paramInfo);
-            //正则表达式模式（非完善版本）：parse sql by regex
-        } else if ("sql-regex".equals(dataType)) {
-            classInfo = TableParseUtil.processTableToClassInfoByRegex(paramInfo);
-            //默认模式：default parse sql by java
-        }
+    /**************************以下是后面根据业务需求添加的文件上传功能**********************/
 
-        //2.Set the params 设置表格参数
+    private MyUploadFileUtil fileUtil;
+    private CodeToFileService codeToFileService;
 
-        paramInfo.getOptions().put("classInfo", classInfo);
-        paramInfo.getOptions().put("tableName", classInfo == null ? System.currentTimeMillis() : classInfo.getTableName());
-
-        //log the generated table and filed size记录解析了什么表，有多少个字段
-        //log.info("generated table :{} , size :{}",classInfo.getTableName(),(classInfo.getFieldList() == null ? "" : classInfo.getFieldList().size()));
-
-        //3.generate the code by freemarker templates with parameters . Freemarker根据参数和模板生成代码
-        Map<String, String> result = generatorService.getResultByParams(paramInfo.getOptions());
-//        log.info("result {}",result);
-        log.info("table:{} - time:{} ", MapUtil.getString(result, "tableName"), new Date());
-        return ReturnT.ok().put("outputJson", result);
+    @Autowired
+    public void setMyUploadFileUtil(MyUploadFileUtil fileUtil) {
+        this.fileUtil = fileUtil;
     }
 
     @Autowired
-    private MyUploadFileUtil fileUtil;
+    private void setCodeToFileService(CodeToFileService codeToFileService) {
+        this.codeToFileService = codeToFileService;
+    }
 
     @PostMapping("/code/generate4file")
     @ResponseBody
@@ -111,13 +90,15 @@ public class GeneratorController {
             var result = fileUtil.uploadFiles(files, request);
 
             //2.读取文件，解析内容
+            if (result == null || request.getContentLength() == 0) {
+                return ReturnT.error("生成失败：没有上传文件");
+            }
 
             //3.根据解析的内容，生成代码
-
-            //4.返回结果（按层级放好类文件，压缩成zip文件，然后下载url）
-
-            return ReturnT.ok(Map.of("fileResult", result));
+            // 返回结果（按层级放好类文件，压缩成zip文件，然后下载url）
+            return codeToFileService.generateByUploadFile(options, result, request);
         } catch (Exception e) {
+            log.error("生成失败： " + e.getMessage(), e);
             return ReturnT.error("You failed to upload because " + e.getMessage());
         }
     }
@@ -132,4 +113,15 @@ public class GeneratorController {
         }
     }
 
+    @PostMapping("/upload")
+    @ResponseBody
+    public ReturnT upload(@RequestParam("file") MultipartFile[] files, HttpServletRequest request) {
+        try {
+            //1.保存文件
+            var result = fileUtil.uploadFiles(files, request);
+            return ReturnT.ok(Map.of("fileResult", result));
+        } catch (Exception e) {
+            return ReturnT.error("You failed to upload because " + e.getMessage());
+        }
+    }
 }

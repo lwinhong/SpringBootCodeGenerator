@@ -1,5 +1,7 @@
 package com.softdev.system.generator.service;
 
+import com.softdev.system.generator.entity.ParamInfo;
+import com.softdev.system.generator.entity.ReturnT;
 import freemarker.template.TemplateException;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,9 @@ public interface GeneratorService {
 
     String getTemplateConfig() throws IOException;
 
-    public Map<String, String> getResultByParams(Map<String, Object> params) throws IOException, TemplateException;
+    Map<String, String> getResultByParams(Map<String, Object> params) throws IOException, TemplateException;
 
+    ReturnT generateCode(ParamInfo paramInfo) throws Exception;
+
+    Map<String, String> generateCodeCore(ParamInfo paramInfo) throws Exception;
 }
