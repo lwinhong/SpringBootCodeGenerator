@@ -34,16 +34,19 @@ public class GeneratorController {
 
     @GetMapping("/")
     public ModelAndView defaultPage() {
+
         return new ModelAndView("index").addObject("value", valueUtil);
     }
 
     @GetMapping("/index")
     public ModelAndView indexPage() {
+
         return new ModelAndView("index").addObject("value", valueUtil);
     }
 
     @GetMapping("/main")
     public ModelAndView mainPage() {
+
         return new ModelAndView("main").addObject("value", valueUtil);
     }
 
@@ -77,6 +80,16 @@ public class GeneratorController {
     @Autowired
     private void setCodeToFileService(CodeToFileService codeToFileService) {
         this.codeToFileService = codeToFileService;
+    }
+
+    @PostMapping("/code/generate4SQL")
+    @ResponseBody
+    public ReturnT generateCode4Sql(@RequestBody ParamInfo paramInfo) throws Exception {
+        try {
+            return generatorService.generateCode(paramInfo);
+        } catch (Exception e) {
+            return ReturnT.error("生成失败： " + e.getMessage());
+        }
     }
 
     @PostMapping("/code/generate4file")

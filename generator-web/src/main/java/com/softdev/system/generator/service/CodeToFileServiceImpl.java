@@ -37,7 +37,9 @@ public class CodeToFileServiceImpl extends AbsCodeToFileService {
         var generateList = new ArrayList<UploadedInfo>();
         for (UploadedInfo uploadedInfo : uploadedInfoList) {
             var fileContent = FileUtil.getContent(uploadedInfo.getRealFilePath());
-            var generateInfo = generateBySql(fileContent, options);
+            var opt = JSONObject.parseObject(options);
+            opt.put("templateConfig", "template4SchemeDev.json");
+            var generateInfo = generateBySql(fileContent, opt);
             if (generateInfo == null) {
                 throw new Exception("生成失败");
             }
@@ -61,10 +63,10 @@ public class CodeToFileServiceImpl extends AbsCodeToFileService {
     }
 
     @Override
-    public UploadedInfo generateBySql(String content, String options) throws Exception {
+    public UploadedInfo generateBySql(String content, JSONObject options) throws Exception {
         var param = new ParamInfo();
         param.setTableSql(content);
-        param.setOptions(JSONObject.parse(options));
+        param.setOptions(options);
         var result = generatorService.generateCodeCore(param);
         if (result != null && !result.isEmpty()) {
             return zipToLocal(result);
@@ -72,16 +74,16 @@ public class CodeToFileServiceImpl extends AbsCodeToFileService {
         return null;
     }
 
-    private UploadedInfo zipToLocal(Map<String, String> result) throws Exception {
+    private UploadedInfo zipToLocal(Map<String, Object> result) throws Exception {
         var uploadDir = fileUtil.buildDir();
         var id = FileUtil.getNewFileId();
         File tmpDir = new File(uploadDir.getFolder().getAbsolutePath() + File.separator + id);
         var files = new ArrayList<File>();
-        for (Map.Entry<String, String> entry : result.entrySet()) {
+        for (Map.Entry<String, Object> entry : result.entrySet()) {
             var fileName = entry.getKey();
             var fileContent = entry.getValue();
             var filePath = tmpDir.getAbsolutePath() + "/" + fileName;
-            FileUtil.writeFile(filePath, fileContent);
+            FileUtil.writeFile(filePath, String.valueOf(fileContent));
             files.add(new File(filePath));
         }
         var zipPath = tmpDir.getAbsolutePath() + ".zip";

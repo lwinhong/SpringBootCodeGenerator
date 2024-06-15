@@ -3,19 +3,14 @@ package com.softdev.system.generator.service;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.softdev.system.generator.entity.ClassInfo;
-import com.softdev.system.generator.entity.ParamInfo;
-import com.softdev.system.generator.entity.ReturnT;
-import com.softdev.system.generator.entity.TemplateConfig;
+import com.softdev.system.generator.entity.*;
 import com.softdev.system.generator.util.FreemarkerUtil;
 import com.softdev.system.generator.util.MapUtil;
 import com.softdev.system.generator.util.TableParseUtil;
 import freemarker.template.TemplateException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,15 +37,25 @@ public class GeneratorServiceImpl implements GeneratorService {
      */
     @Override
     public String getTemplateConfig() throws IOException {
+        templateCpnfig = getTemplateConfig("");
+        return templateCpnfig;
+    }
+
+    @Override
+    public String getTemplateConfig(String fileName) {
+        if (StringUtils.isEmpty(fileName))
+            fileName = "template.json";
+
         templateCpnfig = null;
-        if (templateCpnfig != null) {
-        } else {
-            InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("template.json");
-            templateCpnfig = new BufferedReader(new InputStreamReader(inputStream))
-                    .lines().collect(Collectors.joining(System.lineSeparator()));
-            inputStream.close();
+        try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(fileName);) {
+            if (inputStream != null) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+                    templateCpnfig = reader.lines().collect(Collectors.joining(System.lineSeparator()));
+                }
+            }
+        } catch (Exception e) {
+            log.error("获取模板信息异常：{},{}", fileName, e.getMessage(), e);
         }
-        //log.info(JSON.toJSONString(templateCpnfig));
         return templateCpnfig;
     }
 
@@ -60,20 +65,47 @@ public class GeneratorServiceImpl implements GeneratorService {
      * @author zhengkai.blog.csdn.net
      */
     @Override
-    public Map<String, String> getResultByParams(Map<String, Object> params) throws IOException, TemplateException {
-        Map<String, String> result = new HashMap<>(32);
+    public Map<String, Object> getResultByParams(Map<String, Object> params) throws IOException, TemplateException {
+        Map<String, Object> result = new HashMap<>(32);
         result.put("tableName", MapUtil.getString(params, "tableName"));
-        JSONArray parentTemplates = JSONArray.parseArray(getTemplateConfig());
-        for (int i = 0; i < parentTemplates.size(); i++) {
-            JSONObject parentTemplateObj = parentTemplates.getJSONObject(i);
-            for (int x = 0; x < parentTemplateObj.getJSONArray("templates").size(); x++) {
-                JSONObject childTemplate = parentTemplateObj.getJSONArray("templates").getJSONObject(x);
-                result.put(childTemplate.getString("name"),
-                        FreemarkerUtil.processString(parentTemplateObj.getString("group") + "/"
-                                + childTemplate.getString("name") + ".ftl", params));
-            }
+
+        var templateConfig = MapUtil.getString(params, "templateConfig");
+        if (StringUtils.isNotEmpty(templateConfig)) {
+            getResultByParams4Json(params, result, templateConfig);
+        } else {
+            getResultByParams4Json(params, result, "template4SchemeDev.json");
         }
         return result;
+    }
+
+    private void getResultByParams4Json(Map<String, Object> params, Map<String, Object> result, String templateConfig) throws IOException, TemplateException {
+
+        var templateConfigJson = getTemplateConfig(templateConfig);
+        var schemeDev = JSON.parseArray(templateConfigJson, TooneSchemeDevTemplate.class);
+
+        for (TooneSchemeDevTemplate config : schemeDev) {
+            var templates = config.getTemplates();
+            for (TooneTemplateProcessResult template : templates) {
+                var templateName = config.getGroup() + "/" + template.getName() + ".ftl";
+                template.setContent(FreemarkerUtil.processString(templateName, params));
+                result.put(template.getName(), template);
+            }
+        }
+    }
+
+    private void getResultByParams(Map<String, Object> params, Map<String, Object> result) throws IOException, TemplateException {
+        JSONArray parentTemplates = JSONArray.parseArray(getTemplateConfig(""));
+        for (int i = 0; i < parentTemplates.size(); i++) {
+            JSONObject parentTemplateObj = parentTemplates.getJSONObject(i);
+            var templates = parentTemplateObj.getJSONArray("templates");
+            for (int x = 0; x < templates.size(); x++) {
+                JSONObject childTemplate = templates.getJSONObject(x);
+                var name = childTemplate.getString("name");
+                var templateName = parentTemplateObj.getString("group") + "/" + name + ".ftl";
+                result.put(name,
+                        FreemarkerUtil.processString(templateName, params));
+            }
+        }
     }
 
     @Override
@@ -82,11 +114,11 @@ public class GeneratorServiceImpl implements GeneratorService {
             return ReturnT.error("表结构信息为空");
         }
 
-        Map<String, String> result = generateCodeCore(paramInfo);
+        var result = generateCodeCore(paramInfo);
         return ReturnT.ok().put("outputJson", result);
     }
 
-    public Map<String, String> generateCodeCore(ParamInfo paramInfo) throws Exception {
+    public Map<String, Object> generateCodeCore(ParamInfo paramInfo) throws Exception {
         if (StringUtils.isEmpty(paramInfo.getTableSql())) {
             throw new Exception("表结构信息为空");
         }
@@ -117,7 +149,7 @@ public class GeneratorServiceImpl implements GeneratorService {
         //log.info("generated table :{} , size :{}",classInfo.getTableName(),(classInfo.getFieldList() == null ? "" : classInfo.getFieldList().size()));
 
         //3.generate the code by freemarker templates with parameters . Freemarker根据参数和模板生成代码
-        Map<String, String> result = getResultByParams(paramInfo.getOptions());
+        var result = getResultByParams(paramInfo.getOptions());
 //        log.info("result {}",result);
         log.info("table:{} - time:{} ", MapUtil.getString(result, "tableName"), new Date());
         return result;

@@ -17,9 +17,14 @@ public interface GeneratorService {
 
     String getTemplateConfig() throws IOException;
 
-    Map<String, String> getResultByParams(Map<String, Object> params) throws IOException, TemplateException;
+    String getTemplateConfig(String fileName) throws IOException;
+
+
+    Map<String, Object> getResultByParams(Map<String, Object> params) throws IOException, TemplateException;
 
     ReturnT generateCode(ParamInfo paramInfo) throws Exception;
 
-    Map<String, String> generateCodeCore(ParamInfo paramInfo) throws Exception;
+    Map<String, Object> generateCodeCore(ParamInfo paramInfo) throws Exception;
+
+
 }

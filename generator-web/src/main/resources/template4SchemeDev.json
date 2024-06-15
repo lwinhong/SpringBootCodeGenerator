@@ -1,0 +1,60 @@
+[
+  {
+    "group": "SchemeDevServer",
+    "templates": [
+      {
+        "id": "20",
+        "name": "controller",
+        "description": "controller",
+        "path": "#PACKAGE#/controller/#NAME#Controller.java"
+      },
+      {
+        "id": "21",
+        "name": "service_impl",
+        "description": "service",
+        "path": "#PACKAGE#/service/impl/#NAME#ServiceImpl.java"
+      },
+      {
+        "id": "25",
+        "name": "model_param",
+        "description": "model",
+        "path": "#PACKAGE#/model/param/#NAME#/#NAME#Param.java"
+      },
+      {
+        "id": "26",
+        "name": "model_po",
+        "description": "model",
+        "path": "#PACKAGE#/model/po/#NAME#.java"
+      },
+      {
+        "id": "27",
+        "name": "model_vo",
+        "description": "model",
+        "path": "#PACKAGE#/model/ov/#NAME#VO.java"
+      }
+    ]
+  },
+  {
+    "group": "SchemeDevWebUI",
+    "templates": [
+      {
+        "id": "0",
+        "name": "index_ui",
+        "description": "ui",
+        "path": "src/views/masterdata/#TABLENAME#/index.vue"
+      },
+      {
+        "id": "1",
+        "name": "detail_ui",
+        "description": "ui",
+        "path": "src/views/masterdata/#TABLENAME#/detail.vue"
+      },
+      {
+        "id": "6",
+        "name": "api",
+        "description": "api",
+        "path": "src/api/masterdata/#TABLENAME#/#TABLENAME.js"
+      }
+    ]
+  }
+]
