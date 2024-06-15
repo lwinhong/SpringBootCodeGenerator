@@ -22,11 +22,27 @@ import java.util.List;
  * @date ${.now?string('yyyy-MM-dd')}
  */
 @Service
-public class ${classInfo.className}ServiceImpl implements ${classInfo.className}Service {
+public class ${classInfo.className}ServiceImpl extends BaseServiceImpl<${classInfo.className}, ${classInfo.className}Param> {
 
-	@Resource
-	private ${classInfo.className}Mapper ${classInfo.className?uncap_first}Mapper;
+	public void beforeList(${classInfo.className}Param param, POCondition condition) {
 
+	}
+
+	/**
+	* 保存数据
+	*
+	* @param param
+	* @return
+	*/
+	@Override
+	@Transactional
+	public String save(${classInfo.className}Param param) {
+		${classInfo.className} po = new ${classInfo.className}();
+		BeanUtils.copyProperties(po, param);
+		//保存逻辑
+
+		return "";
+	}
 
 	@Override
 	public Object insert(${classInfo.className} ${classInfo.className?uncap_first}) {
@@ -40,13 +56,38 @@ public class ${classInfo.className}ServiceImpl implements ${classInfo.className}
         return ${returnUtilSuccess}();
 	}
 
-
+	/**
+	* 删除数据
+	*
+	* @param po
+	*/
 	@Override
-	public Object delete(int id) {
-		int ret = ${classInfo.className?uncap_first}Mapper.delete(id);
-		return ret>0?${returnUtilSuccess}():${returnUtilFailure}();
+	@Transactional
+	public void delete(int id) {
+		//根据条件删除
+		//POCondition condition = new POCondition();
+		//添加条件
+		//condition.addEQ("Id", id);
+		//dao.deletePoByCondition(${classInfo.className}.class, condition);
+		dao.deletePo(${classInfo.className}.class, id);
 	}
 
+	/**
+	* 删除数据
+	*
+	* @param po
+	*/
+	@Override
+	@Transactional
+	public void del(${classInfo.className} po) {
+		if (po != null && StringUtil.isNotEmpty(po.getId())) {
+			//根据条件删除
+			//POCondition condition = new POCondition();
+			//condition.addEQ("id", po.getId());
+			//dao.deletePoByCondition(${classInfo.className}.class, condition);
+			dao.deletePo(${classInfo.className}.class, po.getId());
+		}
+	}
 
 	@Override
 	public Object update(${classInfo.className} ${classInfo.className?uncap_first}) {
@@ -55,24 +96,54 @@ public class ${classInfo.className}ServiceImpl implements ${classInfo.className}
 	}
 
 
-	@Override
-	public ${classInfo.className} load(int id) {
-		return ${classInfo.className?uncap_first}Mapper.load(id);
+	/**
+	* 根据ID获取数据
+	*
+	* @param id
+	* @return
+	* @throws Exception
+	*/
+	public ${classInfo.className}VO findById(String id) {
+		${classInfo.className}VO ${classInfo.className?uncap_first}VO = new ${classInfo.className}VO();
+		if (StringUtil.isEmpty(id)) {
+			return null;
+		}
+		${classInfo.className} ${classInfo.className?uncap_first} = this.find(id);
+		if (${classInfo.className?uncap_first} == null) {
+			return null;
+		}
+		BeanCopyUtils.copyProperties(${classInfo.className?uncap_first}VO, ${classInfo.className?uncap_first});
+		return ${classInfo.className?uncap_first}VO;
+	}
+
+	/**
+	* 根据id获取项目信息
+	*
+	* @param id
+	* @return
+	*/
+	public ${classInfo.className} get${classInfo.className}ById(String id) {
+		${classInfo.className} ${classInfo.className?uncap_first} = dao.findPo(${classInfo.className}.class, id);
+		return ${classInfo.className?uncap_first};
 	}
 
 
-	@Override
-	public Map<String,Object> pageList(int offset, int pagesize) {
-
-		List<${classInfo.className}> pageList = ${classInfo.className?uncap_first}Mapper.pageList(offset, pagesize);
-		int totalCount = ${classInfo.className?uncap_first}Mapper.pageListCount(offset, pagesize);
-
-		// result
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("pageList", pageList);
-		result.put("totalCount", totalCount);
-
-		return result;
+	/**
+	* 导出Excel文件
+	*
+	* @param id
+	*/
+	public void exportFile(String id) {
+		try {
+			POCondition condition = new POCondition();
+			condition.addEQ("id", projectId);
+			List<${classInfo.className}> contactsList = dao.findPoList(${classInfo.className}.class, condition);
+			Workbook workbook = ${classInfo.className}Exportor.exportFile(contactsList);
+			String title = "标题" + DateUtil.getCurDate() + ".xls";
+			ImportExportUtil.export(workbook, title);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }
