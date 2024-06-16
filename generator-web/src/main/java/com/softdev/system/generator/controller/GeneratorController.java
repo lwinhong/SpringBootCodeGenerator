@@ -25,6 +25,7 @@ import java.util.Map;
  */
 @Controller
 @Slf4j
+//@CrossOrigin("*")
 public class GeneratorController {
     @Autowired
     private ValueUtil valueUtil;
@@ -111,7 +112,7 @@ public class GeneratorController {
             // 返回结果（按层级放好类文件，压缩成zip文件，然后下载url）
             return codeToFileService.generateByUploadFile(options, result, request);
         } catch (Exception e) {
-            log.error("生成失败： " + e.getMessage(), e);
+            log.error("生成失败： {}", e.getMessage(), e);
             return ReturnT.error("You failed to upload because " + e.getMessage());
         }
     }
@@ -121,7 +122,7 @@ public class GeneratorController {
         try {
             fileUtil.downloadLocal(fileId, response);
         } catch (Exception e) {
-            log.error("下载失败： " + e.getMessage(), e);
+            log.error("下载失败： {}", e.getMessage(), e);
             throw e;
         }
     }

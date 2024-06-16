@@ -232,8 +232,9 @@ public class MyUploadFileUtil {
             throw new RuntimeException("文件:（{" + fileId + "}）不存在");
         }
 
-        response.reset();
+        //response.reset();
         response.setContentType("application/octet-stream");
+        //response.setContentType("application/force-download");
         String filename = fullName.getName();
         response.addHeader("Content-Disposition", "attachment; filename="
                 + URLEncoder.encode(filename, "UTF-8"));

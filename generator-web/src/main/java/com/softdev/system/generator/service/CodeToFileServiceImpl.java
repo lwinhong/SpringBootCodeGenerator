@@ -116,8 +116,8 @@ public class CodeToFileServiceImpl implements CodeToFileService {
         File tmpDir = new File(uploadDir.getFolder().getAbsolutePath() + File.separator + id);
         var zipRoot = tmpDir.getAbsolutePath();//zip文件根目录
         var classInfo = (ClassInfo) paramInfo.getOptions().get("classInfo");
-        var files = new ArrayList<File>();
-        files.add(tmpDir);
+//        var files = new ArrayList<File>();
+//        files.add(tmpDir);
         for (Map.Entry<String, Object> entry : result.entrySet()) {
             //var fileName = entry.getKey();
             var fileValue = entry.getValue();
