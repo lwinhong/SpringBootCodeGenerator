@@ -84,9 +84,10 @@ public class GeneratorController {
 
     @PostMapping("/code/generate4SQL")
     @ResponseBody
-    public ReturnT generateCode4Sql(@RequestBody ParamInfo paramInfo) throws Exception {
+    public ReturnT generateCode4Sql(@RequestBody ParamInfo paramInfo,
+                                    HttpServletRequest request) throws Exception {
         try {
-            return generatorService.generateCode(paramInfo);
+            return codeToFileService.generateBySql(paramInfo, request);
         } catch (Exception e) {
             return ReturnT.error("生成失败： " + e.getMessage());
         }
@@ -115,17 +116,17 @@ public class GeneratorController {
         }
     }
 
-    @RequestMapping("/download")
-    public ReturnT download(String fileId, HttpServletResponse response) throws IOException {
+    @GetMapping("/code/download")
+    public void download(String fileId, HttpServletResponse response) throws IOException {
         try {
             fileUtil.downloadLocal(fileId, response);
-            return ReturnT.ok();
         } catch (Exception e) {
-            return ReturnT.error("You failed to upload because " + e.getMessage());
+            log.error("下载失败： " + e.getMessage(), e);
+            throw e;
         }
     }
 
-    @PostMapping("/upload")
+    @PostMapping("/code/upload")
     @ResponseBody
     public ReturnT upload(@RequestParam("file") MultipartFile[] files, HttpServletRequest request) {
         try {

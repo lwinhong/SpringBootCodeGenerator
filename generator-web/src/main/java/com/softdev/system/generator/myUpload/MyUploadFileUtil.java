@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -107,10 +108,10 @@ public class MyUploadFileUtil {
 
                 var dbFile = new DbFiles().
                         setFilename(f.getFileNewName()).setFileid(f.getFileId()).
-                        setCreatetime(createTime).
-                        setUser(f.getProvider()).setDeleted(0).
+                        setCreatetime(createTime).setUser(f.getProvider()).setDeleted(0).
                         setFilepath(f.getDirInfo().getRelativeFolderWithoutUploadRoot())
-                        .setFilemd5(f.getFileMD5()).setFilesize(f.getFileSize());
+                        .setFilemd5(f.getFileMD5()).setFilesize(f.getFileSize())
+                        .setFileoldname(f.getFileOldName());
                 file2Save.add(dbFile);
             });
             db.insert(file2Save);
@@ -182,6 +183,7 @@ public class MyUploadFileUtil {
                 checkInfo.setUploadedInfo(new UploadedInfo()
                         .setCheckInfo(checkInfo)
                         .setFileId(fileDb.getFileid())
+                        .setFileOldName(fileDb.getFileoldname())
                         .setRealFilePath(existFile.getAbsolutePath())
                 );
             }
@@ -193,7 +195,7 @@ public class MyUploadFileUtil {
 
 
     public String buildUrl(HttpServletRequest request) {
-        return buildUrl(request, "/upload");
+        return buildUrl(request, "/" + uploadPath);
     }
 
     public String buildUrl(HttpServletRequest request, String uploadPath) {
@@ -201,15 +203,15 @@ public class MyUploadFileUtil {
                 + ":" + request.getServerPort() + contextPath;
         if (!uploadPath.startsWith("/"))
             uploadPath = "/" + uploadPath;
+        if (!uploadPath.startsWith("/" + this.uploadPath)) {
+            uploadPath = "/" + this.uploadPath + uploadPath;
+        }
         return url + uploadPath;
     }
 
     public void deleteUploadedFile(UploadedInfo info) {
         try {
-            File f = new File(info.getRealFilePath());
-            if (f.exists()) {
-                f.delete();
-            }
+            FileUtil.deleteDirectory(Path.of(info.getRealFilePath()));
         } catch (Exception e) {
             log.error("删除文件失败", e);
         }
@@ -239,12 +241,13 @@ public class MyUploadFileUtil {
         byte[] b = new byte[1024];
         int len;
         // 读到流中
-        var inputStream = new FileInputStream(fullName);// 文件的存放路径
-        //从输入流中读取一定数量的字节，并将其存储在缓冲区字节数组中，读到末尾返回-1
-        while ((len = inputStream.read(b)) > 0) {
-            outputStream.write(b, 0, len);
+        try (var inputStream = new FileInputStream(fullName))// 文件的存放路径
+        {     //从输入流中读取一定数量的字节，并将其存储在缓冲区字节数组中，读到末尾返回-1
+            while ((len = inputStream.read(b)) > 0) {
+                outputStream.write(b, 0, len);
+            }
+        } catch (Exception e) {
+            log.error("下载文件失败", e);
         }
-        inputStream.close();
     }
-
 }

@@ -10,7 +10,6 @@ import com.softdev.system.generator.entity.DbFiles;
 * @Entity com.softdev.system.filedb.domain.DbFiles
 */
 public interface DbFilesMapper extends BaseMapper<DbFiles> {
-
 }
 
 

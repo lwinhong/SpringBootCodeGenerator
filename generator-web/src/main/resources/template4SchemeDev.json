@@ -6,31 +6,31 @@
         "id": "20",
         "name": "controller",
         "description": "controller",
-        "path": "#PACKAGE#/controller/#NAME#Controller.java"
+        "path": "controller/#CLASSNAME#Controller.java"
       },
       {
         "id": "21",
         "name": "service_impl",
         "description": "service",
-        "path": "#PACKAGE#/service/impl/#NAME#ServiceImpl.java"
+        "path": "service/impl/#CLASSNAME#ServiceImpl.java"
       },
       {
         "id": "25",
         "name": "model_param",
         "description": "model",
-        "path": "#PACKAGE#/model/param/#NAME#/#NAME#Param.java"
+        "path": "model/param/#CLASSNAME#Param.java"
       },
       {
         "id": "26",
         "name": "model_po",
         "description": "model",
-        "path": "#PACKAGE#/model/po/#NAME#.java"
+        "path": "model/po/#CLASSNAME#.java"
       },
       {
         "id": "27",
         "name": "model_vo",
         "description": "model",
-        "path": "#PACKAGE#/model/ov/#NAME#VO.java"
+        "path": "model/ov/#CLASSNAME#VO.java"
       }
     ]
   },
@@ -41,19 +41,19 @@
         "id": "0",
         "name": "index_ui",
         "description": "ui",
-        "path": "src/views/masterdata/#TABLENAME#/index.vue"
+        "path": "views/masterdata/#CLASSNAME#/index.vue"
       },
       {
         "id": "1",
         "name": "detail_ui",
         "description": "ui",
-        "path": "src/views/masterdata/#TABLENAME#/detail.vue"
+        "path": "views/masterdata/#CLASSNAME#/detail.vue"
       },
       {
         "id": "6",
-        "name": "api",
+        "name": "api4ui",
         "description": "api",
-        "path": "src/api/masterdata/#TABLENAME#/#TABLENAME.js"
+        "path": "src/api/masterdata/#CLASSNAME#/#CLASSNAME#.js"
       }
     ]
   }

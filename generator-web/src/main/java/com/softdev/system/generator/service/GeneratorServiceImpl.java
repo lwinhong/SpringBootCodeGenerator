@@ -73,7 +73,7 @@ public class GeneratorServiceImpl implements GeneratorService {
         if (StringUtils.isNotEmpty(templateConfig)) {
             getResultByParams4Json(params, result, templateConfig);
         } else {
-            getResultByParams4Json(params, result, "template4SchemeDev.json");
+            getResultByParams(params, result);
         }
         return result;
     }

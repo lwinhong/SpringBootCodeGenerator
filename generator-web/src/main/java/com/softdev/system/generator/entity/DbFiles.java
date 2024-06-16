@@ -26,6 +26,11 @@ public class DbFiles implements Serializable {
     private String filename;
 
     /**
+     *
+     */
+    private String fileoldname;
+
+    /**
      * 
      */
     private String filemd5;
@@ -83,6 +88,7 @@ public class DbFiles implements Serializable {
         com.softdev.system.generator.entity.DbFiles other = (com.softdev.system.generator.entity.DbFiles) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
                 && (this.getFilename() == null ? other.getFilename() == null : this.getFilename().equals(other.getFilename()))
+                && (this.getFileoldname() == null ? other.getFileoldname() == null : this.getFileoldname().equals(other.getFileoldname()))
                 && (this.getFilemd5() == null ? other.getFilemd5() == null : this.getFilemd5().equals(other.getFilemd5()))
                 && (this.getFileid() == null ? other.getFileid() == null : this.getFileid().equals(other.getFileid()))
                 && (this.getFilesize() == null ? other.getFilesize() == null : this.getFilesize().equals(other.getFilesize()))
@@ -99,6 +105,7 @@ public class DbFiles implements Serializable {
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
         result = prime * result + ((getFilename() == null) ? 0 : getFilename().hashCode());
+        result = prime * result + ((getFileoldname() == null) ? 0 : getFileoldname().hashCode());
         result = prime * result + ((getFilemd5() == null) ? 0 : getFilemd5().hashCode());
         result = prime * result + ((getFileid() == null) ? 0 : getFileid().hashCode());
         result = prime * result + ((getFilesize() == null) ? 0 : getFilesize().hashCode());
@@ -118,6 +125,7 @@ public class DbFiles implements Serializable {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", filename=").append(filename);
+        sb.append(", fileoldname=").append(fileoldname);
         sb.append(", filemd5=").append(filemd5);
         sb.append(", fileid=").append(fileid);
         sb.append(", filesize=").append(filesize);
