@@ -1,5 +1,5 @@
 <#if isAutoImport?exists && isAutoImport==true>
-package com.toone.masterdata.model.param;
+package ${classInfo.packageName}.model.param;
 
 import com.toone.core.base.BaseParam;
 import lombok.Data;

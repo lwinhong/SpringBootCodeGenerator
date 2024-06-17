@@ -143,7 +143,9 @@ public class GeneratorServiceImpl implements GeneratorService {
         }
 
         //2.Set the params 设置表格参数
-
+        if (classInfo != null) {
+            classInfo.setPackageName(MapUtil.getString(paramInfo.getOptions(), "packageName"));
+        }
         paramInfo.getOptions().put("classInfo", classInfo);
         paramInfo.getOptions().put("tableName", classInfo == null ? System.currentTimeMillis() : classInfo.getTableName());
 

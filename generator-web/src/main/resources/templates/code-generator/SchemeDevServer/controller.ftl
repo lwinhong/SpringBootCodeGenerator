@@ -1,16 +1,17 @@
-package com.toone.masterdata.controller;
+package ${classInfo.packageName}.controller;
+
 <#if isAutoImport?exists && isAutoImport==true>
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.toone.core.base.controller.BaseController;
 import com.toone.core.utils.StringUtil;
-import com.toone.masterdata.model.po.MdProjectContacts;
-import com.toone.masterdata.model.vo.MdProjectVO;
+import ${classInfo.packageName}.model.po.MdProjectContacts;
+import ${classInfo.packageName}.model.vo.MdProjectVO;
 import com.toone.core.response.Return;
-import com.toone.masterdata.model.po.MdProject;
-import com.toone.masterdata.model.param.MdProjectParam;
-import com.toone.masterdata.service.impl.MdProjectServiceImpl;
+import ${classInfo.packageName}.model.po.MdProject;
+import ${classInfo.packageName}.model.param.MdProjectParam;
+import ${classInfo.packageName}.service.impl.MdProjectServiceImpl;
 
 import java.util.List;
 </#if>

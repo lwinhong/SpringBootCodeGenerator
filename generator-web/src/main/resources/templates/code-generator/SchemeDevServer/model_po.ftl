@@ -1,5 +1,5 @@
 <#if isAutoImport?exists && isAutoImport==true>
-package com.toone.masterdata.model.po;
+package ${classInfo.packageName}.model.po;
 
 import com.toone.core.model.BasePO;
 import lombok.Data;

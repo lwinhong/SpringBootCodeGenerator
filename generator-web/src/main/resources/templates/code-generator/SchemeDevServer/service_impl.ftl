@@ -1,12 +1,12 @@
 <#if isAutoImport?exists && isAutoImport==true>
-package com.toone.masterdata.service.impl;
+package ${classInfo.packageName}.service.impl;
 
 import com.toone.core.base.service.impl.BaseServiceImpl;
 import com.toone.core.dao.POCondition;
 import com.toone.core.utils.*;
-import com.toone.masterdata.model.po.${classInfo.className};
-import com.toone.masterdata.model.param.${classInfo.className}Param;
-import com.toone.masterdata.model.vo.${classInfo.className}VO;
+import ${classInfo.packageName}.model.po.${classInfo.className};
+import ${classInfo.packageName}.model.param.${classInfo.className}Param;
+import ${classInfo.packageName}.model.vo.${classInfo.className}VO;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
