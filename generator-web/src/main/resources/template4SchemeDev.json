@@ -41,19 +41,25 @@
         "id": "0",
         "name": "index_ui",
         "description": "ui",
-        "path": "views/masterdata/#CLASSNAME#/index.vue"
+        "path": "src/views/masterdata/#LSCLASSNAME#/index.vue"
       },
       {
         "id": "1",
         "name": "detail_ui",
         "description": "ui",
-        "path": "views/masterdata/#CLASSNAME#/detail.vue"
+        "path": "src/views/masterdata/#LSCLASSNAME#/detail.vue"
+      },
+      {
+        "id": "2",
+        "name": "print_ui",
+        "description": "ui",
+        "path": "src/views/masterdata/#LSCLASSNAME#/print#CLASSNAME#.vue"
       },
       {
         "id": "6",
         "name": "api4ui",
         "description": "api",
-        "path": "src/api/masterdata/#CLASSNAME#/#CLASSNAME#.js"
+        "path": "src/api/masterdata/#LSCLASSNAME#/#LSCLASSNAME#.js"
       }
     ]
   }

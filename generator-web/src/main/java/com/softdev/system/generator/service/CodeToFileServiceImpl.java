@@ -7,8 +7,10 @@ import com.softdev.system.generator.entity.ReturnT;
 import com.softdev.system.generator.entity.TooneTemplateProcessResult;
 import com.softdev.system.generator.myUpload.MyUploadFileUtil;
 import com.softdev.system.generator.myUpload.UploadedInfo;
+import com.softdev.system.generator.util.FileMd5Util;
 import com.softdev.system.generator.util.FileUtil;
 
+import com.softdev.system.generator.util.StringUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +80,7 @@ public class CodeToFileServiceImpl implements CodeToFileService {
             var fileContent = FileUtil.getContent(uploadedInfo.getRealFilePath());
             var opt = JSONObject.parseObject(options);
             var generateInfo = generateBySqlCore(request, opt, fileContent, list);
+            generateInfo.setRelateFileId(uploadedInfo.getFileId());
             generateList.add(generateInfo);
         }
         try {
@@ -123,8 +126,13 @@ public class CodeToFileServiceImpl implements CodeToFileService {
             var fileValue = entry.getValue();
             if (fileValue instanceof TooneTemplateProcessResult) {
                 var template = (TooneTemplateProcessResult) fileValue;
-                var codeFilePath = template.getPath().replace("#CLASSNAME#", classInfo.getClassName());
+                //文件路径
+                var codeFilePath = template.getPath()
+                        .replace("#CLASSNAME#", classInfo.getClassName())
+                        .replace("#LSCLASSNAME#", StringUtils.lowerCaseFirst(classInfo.getClassName()));
                 var filePath = Paths.get(tmpDir.getPath(), codeFilePath).toString();
+
+                //将内容写到本地文件
                 FileUtil.writeFile(filePath, String.valueOf(template.getContent()));
                 //files.add(new File(filePath));
             } else {
@@ -134,7 +142,7 @@ public class CodeToFileServiceImpl implements CodeToFileService {
             }
         }
         var zipPath = zipRoot + ".zip";
-        if (!FileUtil.zipFile(zipRoot, zipPath)) {
+        if (!FileUtil.zip(zipRoot, zipPath)) {
             throw new Exception("压缩失败:" + zipPath);
         }
         try {
@@ -144,11 +152,11 @@ public class CodeToFileServiceImpl implements CodeToFileService {
         }
         File zipFile = new File(zipPath);
         return new UploadedInfo()
-                .setFileOldName(id + ".zip")
+                //.setFileOldName(id + ".zip")
                 .setFileDir(uploadDir.getRelativeFolderWithoutUploadRoot())
                 .setFileNewName(id + ".zip")
                 .setFileId(id).setFileSize(zipFile.length() + "")
                 .setRealFilePath(zipPath)
-                .setDirInfo(uploadDir);
+                .setDirInfo(uploadDir).setFileMD5(FileMd5Util.getMD54BigFile(zipFile));
     }
 }

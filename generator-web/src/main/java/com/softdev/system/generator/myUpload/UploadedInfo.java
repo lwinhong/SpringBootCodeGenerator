@@ -46,4 +46,7 @@ public class UploadedInfo {
 
     @JSONField(serialize = false)
     private FileCheckInfo checkInfo;
+
+    @JSONField(serialize = false)
+    private String relateFileId;
 }

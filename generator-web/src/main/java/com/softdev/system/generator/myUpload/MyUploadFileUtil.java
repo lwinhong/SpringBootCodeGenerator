@@ -111,7 +111,7 @@ public class MyUploadFileUtil {
                         setCreatetime(createTime).setUser(f.getProvider()).setDeleted(0).
                         setFilepath(f.getDirInfo().getRelativeFolderWithoutUploadRoot())
                         .setFilemd5(f.getFileMD5()).setFilesize(f.getFileSize())
-                        .setFileoldname(f.getFileOldName());
+                        .setFileoldname(f.getFileOldName()).setRelatefileid(f.getRelateFileId());
                 file2Save.add(dbFile);
             });
             db.insert(file2Save);

@@ -7,7 +7,6 @@
     <resultMap id="BaseResultMap" type="com.softdev.system.generator.entity.DbFiles">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="filename" column="fileName" jdbcType="VARCHAR"/>
-            <result property="fileoldname" column="fileOldName" jdbcType="VARCHAR"/>
             <result property="filemd5" column="fileMD5" jdbcType="VARCHAR"/>
             <result property="fileid" column="fileId" jdbcType="VARCHAR"/>
             <result property="filesize" column="fileSize" jdbcType="VARCHAR"/>
@@ -16,12 +15,14 @@
             <result property="user" column="user" jdbcType="VARCHAR"/>
             <result property="updatetime" column="updateTime" jdbcType="VARCHAR"/>
             <result property="filepath" column="filePath" jdbcType="VARCHAR"/>
+            <result property="fileoldname" column="fileOldName" jdbcType="VARCHAR"/>
+            <result property="relatefileid" column="relateFileId" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,fileName,fileoldname,fileMD5,
+        id,fileName,fileMD5,
         fileId,fileSize,createTime,
         deleted,user,updateTime,
-        filePath
+        filePath,fileOldName,relateFileId
     </sql>
 </mapper>

@@ -1,10 +1,15 @@
 package com.softdev.system.generator.util;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.compress.archivers.ArchiveOutputStream;
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.compress.archivers.zip.Zip64Mode;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -57,64 +62,58 @@ public class FileUtil {
     }
 
     /**
-     * 支持单文件或多层文件夹的压缩
-     *
-     * @param srcPath
-     * @param targetPath
+     * 压缩文件夹下的所有文件
+     * @param dir          要压缩的文件夹
+     * @param outputStream 输出压缩后的文件流
+     * @throws IOException      IO异常
+     * @throws ArchiveException 压缩异常
      */
-    public static Boolean zipFile(String srcPath, String targetPath) {
-        int length;
-        File file = new File(srcPath);
-        List<File> filesToArchive;
-        if (file.isDirectory()) {
-            filesToArchive = getAllFile(new File(srcPath));
-            length = srcPath.length();
-        } else {
-            filesToArchive = Collections.singletonList(file);
-            length = file.getParent().length() + 1;
-        }
-        try (ArchiveOutputStream<ZipArchiveEntry> o = new ZipArchiveOutputStream(new File(targetPath))) {
-            for (File f : filesToArchive) {
-                ZipArchiveEntry entry = o.createArchiveEntry(f, f.getPath().substring(length));
-                o.putArchiveEntry(entry);
-                if (f.isFile()) {
-                    try (InputStream i = Files.newInputStream(f.toPath())) {
-                        IOUtils.copy(i, o);
+    public static void zip(File dir, OutputStream outputStream) throws IOException, ArchiveException {
+        ZipArchiveOutputStream zipOutput = null;
+        try {
+            zipOutput = new ArchiveStreamFactory()
+                    .createArchiveOutputStream(ArchiveStreamFactory.ZIP, outputStream);
+            zipOutput.setEncoding("utf-8");
+            zipOutput.setUseZip64(Zip64Mode.AsNeeded);
+            Collection<File> files = FileUtils.listFilesAndDirs(dir, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+
+            for (File file : files) {
+                InputStream in = null;
+                try {
+                    if (file.getPath().equals(dir.getPath())) {
+                        continue;
+                    }
+                    String relativePath = StringUtils.replace(file.getPath(), dir.getPath() + File.separator, "");
+                    ZipArchiveEntry entry = new ZipArchiveEntry(file, relativePath);
+                    zipOutput.putArchiveEntry(entry);
+                    if (file.isDirectory()) {
+                        zipOutput.closeArchiveEntry();
+                        continue;
+                    }
+
+                    in = new FileInputStream(file);
+                    IOUtils.copy(in, zipOutput);
+                    zipOutput.closeArchiveEntry();
+                } finally {
+                    if (in != null) {
+                        IOUtils.closeQuietly(in);
                     }
                 }
-                o.closeArchiveEntry();
             }
-        } catch (IOException e) {
+            zipOutput.finish();
+        } finally {
+            IOUtils.closeQuietly(zipOutput);
+        }
+    }
+
+    public static Boolean zip(String sourceFolderPath, String zipFilePath) {
+        try (FileOutputStream fos = new FileOutputStream(zipFilePath)) {
+            zip(new File(sourceFolderPath), fos);
+        } catch (Exception e) {
             log.error("zipFile fails", e);
             return false;
         }
         return true;
-    }
-
-    /**
-     * 递归获取文件夹下所有文件
-     * @param dirFile
-     * @return
-     */
-    public static List<File> getAllFile(File dirFile) {
-        File[] childrenFiles = dirFile.listFiles();
-        if (Objects.isNull(childrenFiles) || childrenFiles.length == 0) {
-            return Collections.emptyList();
-        }
-        List<File> files = new ArrayList<>();
-        for (File childFile : childrenFiles) {
-            if (childFile.isFile()) {
-                files.add(childFile);
-            } else {
-                files.add(childFile);
-                List<File> cFiles = getAllFile(childFile);
-                if (cFiles.isEmpty()) {
-                    continue;
-                }
-                files.addAll(cFiles);
-            }
-        }
-        return files;
     }
 
     /**

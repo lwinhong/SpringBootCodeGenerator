@@ -15,6 +15,7 @@ import org.springframework.web.filter.CorsFilter;
 
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.alibaba.fastjson2.JSONReader;
@@ -63,7 +64,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
         return bean;
     }
 
-
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/statics/**")
@@ -82,7 +82,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registration.setOrder(Integer.MAX_VALUE);
         return registration;
     }
-
 
     /**
      * FASTJSON2升级 by https://zhengkai.blog.csdn.net/
