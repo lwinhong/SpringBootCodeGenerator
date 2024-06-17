@@ -8,6 +8,9 @@
                 <td class="mt td-title" style="width:5%;">序号</td>
                 <#if classInfo.fieldList?exists && classInfo.fieldList?size gt 0>
                 <#list classInfo.fieldList as fieldItem >
+                    <#if fieldItem.fieldName=="id">
+                        <#continue >
+                    </#if>
                 <td class="mt td-title" style="width:15%;">${fieldItem.fieldName}</td>
                 </#list>
                 </#if>
@@ -17,6 +20,9 @@
                     <td class="mt td-cell">{{ index + 1 }}</td>
                     <#if classInfo.fieldList?exists && classInfo.fieldList?size gt 0>
                     <#list classInfo.fieldList as fieldItem >
+                        <#if fieldItem.fieldName=="id">
+                            <#continue >
+                        </#if>
                     <td class="mt td-cell">{{ item.${fieldItem.fieldName} }}</td>
                     </#list>
                     </#if>

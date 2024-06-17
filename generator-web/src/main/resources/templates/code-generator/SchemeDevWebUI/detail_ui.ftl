@@ -12,6 +12,9 @@
                     <base-panel title='${classInfo.classComment!"标题"}' :collapse="true">
                         <#if classInfo.fieldList?exists && classInfo.fieldList?size gt 0>
                         <#list classInfo.fieldList as fieldItem >
+                            <#if fieldItem.fieldName=="id">
+                                <#continue >
+                            </#if>
                         <base-form-item :span="6" label="${fieldItem.fieldComment!fieldItem.fieldName}" prop="${fieldItem.fieldName}">
                             <#if fieldItem.fieldClass =="Date">
                                 <el-date-picker v-model="form.${fieldItem.fieldName}" type="date" value-format="yyyy-MM-dd" placeholder="选择日期" :disabled="!editable" />
@@ -68,6 +71,9 @@ export default {
                 <#if classInfo.fieldList?exists && classInfo.fieldList?size gt 0>
                 <#assign i=1>
                 <#list classInfo.fieldList as fieldItem >
+                <#if fieldItem.fieldName=="id">
+                <#continue >
+                </#if>
                 <#if i gt 5>
                     <#break >
                 </#if>

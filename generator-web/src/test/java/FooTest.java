@@ -1,4 +1,4 @@
-import com.softdev.system.generator.util.StringUtils;
+import com.toone.system.generator.util.StringUtils;
 
 public class FooTest {
 
