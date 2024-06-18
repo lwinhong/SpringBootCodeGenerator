@@ -129,7 +129,8 @@ public class GeneratorServiceImpl implements GeneratorService {
         ClassInfo classInfo = null;
         String dataType = MapUtil.getString(paramInfo.getOptions(), "dataType");
         if ("sql".equals(dataType) || dataType == null) {
-            classInfo = TableParseUtil.processTableIntoClassInfo(paramInfo);
+            //classInfo = TableParseUtil.processTableIntoClassInfo(paramInfo);
+            classInfo = TableParseUtil.processSqlToClassInfoBySqlParser(paramInfo);
         } else if ("json".equals(dataType)) {
             //JSON模式：parse field from json string
             classInfo = TableParseUtil.processJsonToClassInfo(paramInfo);

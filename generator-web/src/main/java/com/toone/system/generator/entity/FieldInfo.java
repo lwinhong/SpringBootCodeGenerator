@@ -1,6 +1,7 @@
 package com.toone.system.generator.entity;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * field info
@@ -8,6 +9,7 @@ import lombok.Data;
  * @author xuxueli 2018-05-02 20:11:05
  */
 @Data
+@Accessors(chain = true)
 public class FieldInfo {
 
     private String columnName;

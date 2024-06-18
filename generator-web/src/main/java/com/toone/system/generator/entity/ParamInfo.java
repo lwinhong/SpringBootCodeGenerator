@@ -14,6 +14,7 @@ public class ParamInfo {
 
     private String tableSql;
     private Map<String,Object> options;
+    private String dbType;
 
     @Data
     public static class NAME_CASE_TYPE {

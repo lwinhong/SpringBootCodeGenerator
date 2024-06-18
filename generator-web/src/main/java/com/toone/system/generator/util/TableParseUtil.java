@@ -1,5 +1,12 @@
 package com.toone.system.generator.util;
 
+import com.alibaba.druid.DbType;
+import com.alibaba.druid.sql.SQLUtils;
+import com.alibaba.druid.sql.ast.SQLStatement;
+import com.alibaba.druid.sql.ast.statement.SQLColumnDefinition;
+import com.alibaba.druid.sql.ast.statement.SQLCreateTableStatement;
+import com.alibaba.druid.sql.ast.statement.SQLTableElement;
+import com.alibaba.druid.util.JdbcConstants;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
@@ -7,6 +14,11 @@ import com.toone.system.generator.entity.ClassInfo;
 import com.toone.system.generator.entity.FieldInfo;
 import com.toone.system.generator.entity.NonCaseString;
 import com.toone.system.generator.entity.ParamInfo;
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,6 +35,8 @@ import java.util.regex.Pattern;
  */
 public class TableParseUtil {
 
+    private static final Logger log = LoggerFactory.getLogger(TableParseUtil.class);
+
     /**
      * 解析DDL SQL生成类信息
      *
@@ -33,8 +47,8 @@ public class TableParseUtil {
             throws IOException {
         //process the param
         NonCaseString tableSql = NonCaseString.of(paramInfo.getTableSql());
-        String nameCaseType = MapUtil.getString(paramInfo.getOptions(),"nameCaseType");
-        Boolean isPackageType = MapUtil.getBoolean(paramInfo.getOptions(),"isPackageType");
+        String nameCaseType = MapUtil.getString(paramInfo.getOptions(), "nameCaseType");
+        Boolean isPackageType = MapUtil.getBoolean(paramInfo.getOptions(), "isPackageType");
 
         if (tableSql == null || tableSql.trim().length() == 0) {
             throw new CodeGenerateException("Table structure can not be empty. 表结构不能为空。");
@@ -44,11 +58,12 @@ public class TableParseUtil {
                 .replaceAll("'", "`")
                 .replaceAll("\"", "`")
                 .replaceAll("，", ",")
-                // 这里全部转小写, 会让驼峰风格的字段名丢失驼峰信息(真有驼峰sql字段名的呢(*￣︶￣)); 下文使用工具方法处理包含等
-                // .toLowerCase()
+        // 这里全部转小写, 会让驼峰风格的字段名丢失驼峰信息(真有驼峰sql字段名的呢(*￣︶￣)); 下文使用工具方法处理包含等
+        // .toLowerCase()
         ;
         //deal with java string copy \n"
-        tableSql = tableSql.trim().replaceAll("\\\\n`", "").replaceAll("\\+", "").replaceAll("``", "`").replaceAll("\\\\", "");
+        tableSql = tableSql.trim().replaceAll("\\\\n`", "").replaceAll("\\+", "").replaceAll("``", "`").replaceAll("\\\\", "")
+                .replaceAll("--.*", "");
         // table Name
         String tableName = null;
         int tableKwIx = tableSql.indexOf("TABLE"); // 包含判断和位置一次搞定
@@ -78,8 +93,8 @@ public class TableParseUtil {
         }
         String originTableName = tableName;
         //ignore prefix
-        if(tableName!=null && StringUtils.isNotNull(MapUtil.getString(paramInfo.getOptions(),"ignorePrefix"))){
-            tableName = tableName.replaceAll(MapUtil.getString(paramInfo.getOptions(),"ignorePrefix"),"");
+        if (tableName != null && StringUtils.isNotNull(MapUtil.getString(paramInfo.getOptions(), "ignorePrefix"))) {
+            tableName = tableName.replaceAll(MapUtil.getString(paramInfo.getOptions(), "ignorePrefix"), "");
         }
         // class Name
         String className = StringUtils.upperCaseFirst(StringUtils.underlineToCamelCase(tableName));
@@ -199,12 +214,12 @@ public class TableParseUtil {
                     }
                     columnLine = columnLine.substring(columnLine.indexOf("`") + 1).trim();
                     String mysqlType = columnLine.split("\\s+")[1];
-                    if(mysqlType.contains("(")){
+                    if (mysqlType.contains("(")) {
                         mysqlType = mysqlType.substring(0, mysqlType.indexOf("("));
                     }
                     //swagger class
-                    String swaggerClass = "string" ;
-                    if(mysqlJavaTypeUtil.getMysqlSwaggerTypeMap().containsKey(mysqlType)){
+                    String swaggerClass = "string";
+                    if (mysqlJavaTypeUtil.getMysqlSwaggerTypeMap().containsKey(mysqlType)) {
                         swaggerClass = mysqlJavaTypeUtil.getMysqlSwaggerTypeMap().get(mysqlType);
                     }
                     // field class
@@ -214,7 +229,7 @@ public class TableParseUtil {
                     //2018-11-22 lshz0088 处理字段类型的时候，不严谨columnLine.contains(" int") 类似这种的，可在前后适当加一些空格之类的加以区分，否则当我的字段包含这些字符的时候，产生类型判断问题。
                     //2020-05-03 MOSHOW.K.ZHENG 优化对所有类型的处理
                     //2020-10-20 zhengkai 新增包装类型的转换选择
-                    if(mysqlJavaTypeUtil.getMysqlJavaTypeMap().containsKey(mysqlType)){
+                    if (mysqlJavaTypeUtil.getMysqlJavaTypeMap().containsKey(mysqlType)) {
                         fieldClass = mysqlJavaTypeUtil.getMysqlJavaTypeMap().get(mysqlType);
                     }
                     // field comment，MySQL的一般位于field行，而pgsql和oralce多位于后面。
@@ -290,8 +305,8 @@ public class TableParseUtil {
                         "buffer_pool",
                         "tablespace"
                 )
-                && !(columnLine.contains("primary ") && columnLine.indexOf("storage") + 3 > columnLine.indexOf("("))
-                && !(columnLine.contains("primary ") && lineSeq > 3)
+                        && !(columnLine.contains("primary ") && columnLine.indexOf("storage") + 3 > columnLine.indexOf("("))
+                        && !(columnLine.contains("primary ") && lineSeq > 3)
         );
     }
 
@@ -355,7 +370,8 @@ public class TableParseUtil {
             String tableComment = matcher.group("tableComment");
             codeJavaInfo.setTableName(tableName.replaceAll("'", ""));
             codeJavaInfo.setClassName(tableName.replaceAll("'", ""));
-            codeJavaInfo.setClassComment(tableComment.replaceAll("'", ""));
+            if (tableComment != null)
+                codeJavaInfo.setClassComment(tableComment.replaceAll("'", ""));
             String columnsSQL = matcher.group("columnsSQL");
             if (columnsSQL != null && columnsSQL.length() > 0) {
                 Matcher colMatcher = COL_PATTERN.matcher(columnsSQL);
@@ -368,7 +384,8 @@ public class TableParseUtil {
                         fieldInfo.setFieldName(fieldName.replaceAll("'", ""));
                         fieldInfo.setColumnName(fieldName.replaceAll("'", ""));
                         fieldInfo.setFieldClass(fieldType.replaceAll("'", ""));
-                        fieldInfo.setFieldComment(fieldComment.replaceAll("'", ""));
+                        if (fieldComment != null)
+                            fieldInfo.setFieldComment(fieldComment.replaceAll("'", ""));
                         fieldList.add(fieldInfo);
                     }
                 }
@@ -471,4 +488,99 @@ public class TableParseUtil {
         return codeJavaInfo;
     }
 
+    public static ClassInfo processSqlToClassInfoBySqlParser(ParamInfo paramInfo) throws JSQLParserException {
+        DbType dbtype = DbType.of(paramInfo.getDbType());
+        if (dbtype == null) {
+            dbtype = DbType.mysql;
+            log.warn("没有传数据库类型，默认是有mysql");
+            //throw new CodeGenerateException("不支持的数据库类型");
+        }
+
+        String nameCaseType = MapUtil.getString(paramInfo.getOptions(), "nameCaseType");
+        //表名
+        String tableName = null;
+        // class Comment
+        String classComment = null;
+        // field List
+        List<FieldInfo> fieldList = new ArrayList<>();
+        var stmtList = SQLUtils.parseStatements(paramInfo.getTableSql(), dbtype);
+        for (SQLStatement stmt : stmtList) {
+            if (!(stmt instanceof SQLCreateTableStatement)) {
+                continue;
+            }
+
+            var table = (SQLCreateTableStatement) stmt;
+
+            tableName = table.getTableName().replace("`", "");
+            classComment = table.getComment() != null ? table.getComment().toString() : "";
+            //如果备注跟;混在一起，需要替换掉
+            classComment = classComment.replaceAll(";", "");
+
+            for (SQLTableElement element : table.getTableElementList()) {
+                if (!(element instanceof SQLColumnDefinition)) {
+                    continue;
+                }
+                var column = (SQLColumnDefinition) element;
+
+                String columnName = column.getColumnName().replace("`", "");
+                // field Name
+                // 2019-09-08 yj 添加是否下划线转换为驼峰的判断
+                // 2023-8-27 L&J 支持原始列名任意命名风格, 不依赖用户是否输入下划线
+                String fieldName;
+                if (ParamInfo.NAME_CASE_TYPE.CAMEL_CASE.equals(nameCaseType)) {
+                    // 2024-1-27 L&J 适配任意(maybe)原始风格转小写驼峰
+                    fieldName = StringUtils.toLowerCamel(columnName);
+                } else if (ParamInfo.NAME_CASE_TYPE.UNDER_SCORE_CASE.equals(nameCaseType)) {
+                    fieldName = StringUtils.toUnderline(columnName, false);
+                } else if (ParamInfo.NAME_CASE_TYPE.UPPER_UNDER_SCORE_CASE.equals(nameCaseType)) {
+                    fieldName = StringUtils.toUnderline(columnName.toUpperCase(), true);
+                } else {
+                    fieldName = columnName;
+                }
+
+                String mysqlType = column.getDataType().getName().toLowerCase();
+                //swagger class
+                String swaggerClass = "string";
+                if (mysqlJavaTypeUtil.getMysqlSwaggerTypeMap().containsKey(mysqlType)) {
+                    swaggerClass = mysqlJavaTypeUtil.getMysqlSwaggerTypeMap().get(mysqlType);
+                }
+                // field class
+                // int(11) NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+                String fieldClass = "String";
+                if (mysqlJavaTypeUtil.getMysqlJavaTypeMap().containsKey(mysqlType)) {
+                    fieldClass = mysqlJavaTypeUtil.getMysqlJavaTypeMap().get(mysqlType);
+                }
+                String fieldComment = column.getComment() != null ? column.getComment().toString() : columnName;
+
+                FieldInfo fieldInfo = new FieldInfo()
+                    .setColumnName(columnName)
+                    .setFieldName(fieldName)
+                    .setSwaggerClass(swaggerClass)
+                    .setFieldClass(fieldClass)
+                    .setFieldComment(fieldComment);
+                fieldList.add(fieldInfo);
+            }
+            break;
+        }
+        if (fieldList.size() == 0) {
+            throw new CodeGenerateException("表结构分析失败，请检查语句是否正确");
+        }
+        String originTableName = tableName;
+        // class Name
+        String className = StringUtils.upperCaseFirst(StringUtils.underlineToCamelCase(tableName));
+        if (className.contains("_")) {
+            className = className.replaceAll("_", "");
+        }
+
+        classComment = classComment.replaceAll(";", "");
+
+        ClassInfo codeJavaInfo = new ClassInfo();
+        codeJavaInfo.setTableName(tableName);
+        codeJavaInfo.setClassName(className);
+        codeJavaInfo.setClassComment(classComment);
+        codeJavaInfo.setFieldList(fieldList);
+        codeJavaInfo.setOriginTableName(originTableName);
+
+        return codeJavaInfo;
+    }
 }
