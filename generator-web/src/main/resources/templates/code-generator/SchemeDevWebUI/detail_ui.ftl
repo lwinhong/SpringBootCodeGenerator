@@ -77,7 +77,7 @@ export default {
                 <#if i gt 5>
                     <#break >
                 </#if>
-                ${fieldItem.fieldName}: [ { required: true, message: '${fieldItem.fieldComment}不能为空', trigger: 'blur' }],
+                ${fieldItem.fieldName}: [ { required: true, message: '请输入${fieldItem.fieldComment!fieldItem.fieldName}', trigger: 'blur' }],
                 <#assign i+=1>
                 </#list>
                 </#if>

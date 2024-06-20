@@ -6,6 +6,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.toone.system.generator.entity.*;
 import com.toone.system.generator.util.FreemarkerUtil;
 import com.toone.system.generator.util.MapUtil;
+import com.toone.system.generator.util.SqlParserUtil;
 import com.toone.system.generator.util.TableParseUtil;
 import com.toone.system.generator.entity.*;
 import freemarker.template.TemplateException;
@@ -130,10 +131,10 @@ public class GeneratorServiceImpl implements GeneratorService {
         String dataType = MapUtil.getString(paramInfo.getOptions(), "dataType");
         if ("sql".equals(dataType) || dataType == null) {
             //classInfo = TableParseUtil.processTableIntoClassInfo(paramInfo);
-            classInfo = TableParseUtil.processSqlToClassInfoBySqlParser(paramInfo);
+            classInfo = SqlParserUtil.processSqlToClassInfo(paramInfo);
         } else if ("json".equals(dataType)) {
             //JSON模式：parse field from json string
-            classInfo = TableParseUtil.processJsonToClassInfo(paramInfo);
+            classInfo = SqlParserUtil.processJsonToClassInfo(paramInfo).get(0);
             //INSERT SQL模式：parse field from insert sql
         } else if ("insert-sql".equals(dataType)) {
             classInfo = TableParseUtil.processInsertSqlToClassInfo(paramInfo);

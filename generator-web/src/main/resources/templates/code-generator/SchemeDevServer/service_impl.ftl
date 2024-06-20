@@ -1,6 +1,6 @@
-<#if isAutoImport?exists && isAutoImport==true>
 package ${classInfo.packageName}.service.impl;
 
+<#if isAutoImport?exists && isAutoImport==true>
 import com.toone.core.base.service.impl.BaseServiceImpl;
 import com.toone.core.dao.POCondition;
 import com.toone.core.utils.*;

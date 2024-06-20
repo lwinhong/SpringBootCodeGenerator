@@ -1,6 +1,6 @@
-<#if isAutoImport?exists && isAutoImport==true>
 package ${classInfo.packageName}.model.vo;
 
+<#if isAutoImport?exists && isAutoImport==true>
 import com.toone.core.model.BasePO;
 import lombok.Data;
 import java.math.BigDecimal;

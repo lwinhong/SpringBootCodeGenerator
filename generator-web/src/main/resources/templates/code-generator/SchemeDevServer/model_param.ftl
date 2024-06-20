@@ -1,11 +1,12 @@
-<#if isAutoImport?exists && isAutoImport==true>
 package ${classInfo.packageName}.model.param;
 
+<#if isAutoImport?exists && isAutoImport==true>
 import com.toone.core.base.BaseParam;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.io.Serializable;
 </#if>
+
 /**
  * @description ${classInfo.classComment}
  * @author ${authorName}
@@ -26,19 +27,19 @@ public class ${classInfo.className}Param extends BaseParam {
 </#list>
 </#if>
 
-<#if classInfo.fieldList?exists && classInfo.fieldList?size gt 0>
-    public ${classInfo.className}() {
-    }
+<#--<#if classInfo.fieldList?exists && classInfo.fieldList?size gt 0>-->
+<#--    public ${classInfo.className}() {-->
+<#--    }-->
 
-<#list classInfo.fieldList as fieldItem>
-    public ${fieldItem.fieldClass} get${fieldItem.fieldName?cap_first}() {
-        return ${fieldItem.fieldName};
-    }
+<#--<#list classInfo.fieldList as fieldItem>-->
+<#--    public ${fieldItem.fieldClass} get${fieldItem.fieldName?cap_first}() {-->
+<#--        return ${fieldItem.fieldName};-->
+<#--    }-->
 
-    public void set${fieldItem.fieldName?cap_first}(${fieldItem.fieldClass} ${fieldItem.fieldName}) {
-        this.${fieldItem.fieldName} = ${fieldItem.fieldName};
-    }
+<#--    public void set${fieldItem.fieldName?cap_first}(${fieldItem.fieldClass} ${fieldItem.fieldName}) {-->
+<#--        this.${fieldItem.fieldName} = ${fieldItem.fieldName};-->
+<#--    }-->
 
-</#list>
-</#if>
+<#--</#list>-->
+<#--</#if>-->
 }

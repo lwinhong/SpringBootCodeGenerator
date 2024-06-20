@@ -80,7 +80,7 @@ export default {
                 <#if i gt 3>
                 <#break>
                 </#if>
-                ${fieldItem.fieldName}
+                ${fieldItem.fieldName},
                 <#assign i+=1>
                 </#list>
                 </#if>
@@ -138,7 +138,7 @@ export default {
             <#if i gt 3>
             <#break>
             </#if>
-            this.listQuery.${fieldItem.fieldName} = ''
+            this.listQuery.${fieldItem.fieldName} = '';
             <#assign i+=1>
             </#list>
             </#if>
