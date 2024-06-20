@@ -1,0 +1,95 @@
+server:
+  port: 1234
+  servlet:
+    context-path: /generator
+    encoding:
+      charset: UTF-8
+      force: true
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 60MB
+
+  undertow:
+    # 设置IO线程数, 它主要执行非阻塞的任务,它们会负责多个连接, 默认设置每个CPU核心一个线程
+    # 不要设置过大，如果过大，启动项目会报错：打开文件数过多
+    io-threads: 4
+    # 阻塞任务线程池, 当执行类似servlet请求阻塞IO操作, undertow会从这个线程池中取得线程
+    # 它的值设置取决于系统线程执行任务的阻塞系数，默认值是IO线程数*8
+    worker-threads: 64
+    # 以下的配置会影响buffer,这些buffer会用于服务器连接的IO操作,有点类似netty的池化内存管理
+    # 每块buffer的空间大小,越小的空间被利用越充分，不要设置太大，以免影响其他应用，合适即可
+    buffer-size: 1024
+    # 是否分配的直接内存(NIO直接分配的堆外内存)
+    direct-buffers: true
+
+file-save-path: upload
+
+file-storage:
+  localStorage:
+    root-path: D:\files # 这里写本机任意文件保存路径
+    pathStrategy: byDate # byDate| byId | byNo
+    nameStrategy: seqAndOriginalName  # seqAndOriginalName | originalNameAndSeq | seq | uuid
+    dateFormat: yyMM/dd
+
+upload:
+  requestPre: '/images' # 前端访问加上前缀映射
+
+spring:
+  banner:
+    charset: UTF-8
+  application:
+    name: spring-boot-code-generator
+  freemarker:
+    request-context-attribute: request
+    suffix: .html
+    content-type: text/html
+    enabled: true
+    cache: false
+    charset: UTF-8
+    allow-request-override: false
+    expose-request-attributes: true
+    expose-session-attributes: true
+    expose-spring-macro-helpers: true
+    settings:
+      number_format: 0.##
+      default_encoding: UTF-8
+      #template_loader: /templates/
+  datasource:
+    #引用项目中的数据库文件
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite::resource:statics/sqlite/generator.db
+
+mybatis-plus:
+#  mapper-locations: classpath:/mapper/**.xml
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: deleted # 全局逻辑删除字段名
+      logic-delete-value: 1 # 逻辑已删除值
+      logic-not-delete-value: 0 # 逻辑未删除值
+
+  #mvc:
+  #  static-path-pattern: /statics/**
+logging:
+  file:
+    name: log/log.log
+    path: /var/logs
+  logback:
+    rollingpolicy:
+      file-name-pattern: ${LOG_FILE}.%d{yyyy-MM-dd}.%i.gz
+      max-file-size: 5MB
+OEM:
+  version: 2024.4
+  header: SQL转Java JPA、MYBATIS实现类代码生成平台
+  keywords: sql转实体类,sql转DAO,SQL转service,SQL转JPA实现,SQL转MYBATIS实现
+  title: JAVA代码生成平台
+  slogan: For reducing the repetitive CRUD work
+  description: to be the one
+  author: kk
+  packageName: com.toone.system
+  copyright: Powered by toone
+  returnUtilSuccess: ReturnT.success
+  returnUtilFailure: ReturnT.error
+  outputStr: toone
+  mode: local
