@@ -83,6 +83,7 @@ public class GeneratorController {
         try {
             return codeToFileService.generateBySql(paramInfo, request);
         } catch (Exception e) {
+            log.error("生成失败： {}", e.getMessage(), e);
             return ReturnT.error("生成失败： " + e.getMessage());
         }
     }

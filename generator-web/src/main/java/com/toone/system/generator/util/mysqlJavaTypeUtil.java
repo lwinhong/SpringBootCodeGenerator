@@ -22,6 +22,8 @@ public final class mysqlJavaTypeUtil {
         mysqlJavaTypeMap.put("float","Float");
         mysqlJavaTypeMap.put("double","Double");
         mysqlJavaTypeMap.put("decimal","Double");
+        mysqlJavaTypeMap.put("numeric","Double");
+        mysqlJavaTypeMap.put("real","Double");
         //bool
         mysqlJavaTypeMap.put("bit","Boolean");
         //字符串
@@ -35,7 +37,7 @@ public final class mysqlJavaTypeUtil {
         mysqlJavaTypeMap.put("date","Date");
         mysqlJavaTypeMap.put("datetime","Date");
         mysqlJavaTypeMap.put("timestamp","Date");
-
+        mysqlJavaTypeMap.put("time","Date");
 
         mysqlSwaggerTypeMap.put("bigint","integer");
         mysqlSwaggerTypeMap.put("int","integer");

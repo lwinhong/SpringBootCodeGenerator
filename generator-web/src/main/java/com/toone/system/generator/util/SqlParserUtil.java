@@ -17,6 +17,7 @@ import com.toone.system.generator.entity.ParamInfo;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.JSQLParserException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -199,16 +200,21 @@ public class SqlParserUtil {
      * @param paramInfo
      * @return
      */
-    public static ClassInfo processSqlToClassInfo(ParamInfo paramInfo) throws JSQLParserException {
+    public static ClassInfo processSqlToClassInfo(ParamInfo paramInfo) throws JSQLParserException, IOException {
         var sql = paramInfo.getTableSql();
         var options = paramInfo.getOptions();
         DbType dbtype = DbType.of(MapUtil.getString(paramInfo.getOptions(), "dbType"));
         if (dbtype == null) {
             //sql.toLowerCase().contains("mysql")
             dbtype = DbType.mysql;
-            log.warn("没有传数据库类型，默认是有mysql");
+            log.warn("没有传数据库类型，默认用mysql");
             //throw new CodeGenerateException("不支持的数据库类型");
         }
+
+//        if(dbtype == DbType.postgresql){
+//            return TableParseUtil.processTableIntoClassInfo(paramInfo);
+//        }
+
         var stmtList = SQLUtils.parseStatements(sql, dbtype);
 
         if (stmtList.stream().anyMatch(stmt -> stmt instanceof SQLInsertStatement)) {
