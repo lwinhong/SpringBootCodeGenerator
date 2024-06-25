@@ -78,12 +78,11 @@ public class GeneratorController {
 
     @PostMapping("/code/generate4SQL")
     @ResponseBody
-    public ReturnT generateCode4Sql(@RequestBody ParamInfo paramInfo,
-                                    HttpServletRequest request) throws Exception {
+    public ReturnT generateCode4Sql(@RequestBody ParamInfo paramInfo, HttpServletRequest request) {
         try {
             return codeToFileService.generateBySql(paramInfo, request);
         } catch (Exception e) {
-            log.error("生成失败： {}", e.getMessage(), e);
+            log.error("生成失败", e);
             return ReturnT.error("生成失败： " + e.getMessage());
         }
     }
@@ -106,7 +105,7 @@ public class GeneratorController {
             // 返回结果（按层级放好类文件，压缩成zip文件，然后下载url）
             return codeToFileService.generateByUploadFile(options, result, request);
         } catch (Exception e) {
-            log.error("生成失败： {}", e.getMessage(), e);
+            log.error("生成失败", e);
             return ReturnT.error("You failed to upload because " + e.getMessage());
         }
     }
@@ -116,7 +115,7 @@ public class GeneratorController {
         try {
             fileUtil.downloadLocal(fileId, response);
         } catch (Exception e) {
-            log.error("下载失败： {}", e.getMessage(), e);
+            log.error("下载失败", e);
             throw e;
         }
     }
@@ -129,6 +128,7 @@ public class GeneratorController {
             var result = fileUtil.uploadFiles(files, request);
             return ReturnT.ok(Map.of("fileResult", result));
         } catch (Exception e) {
+            log.error("上传失败", e);
             return ReturnT.error("You failed to upload because " + e.getMessage());
         }
     }

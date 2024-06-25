@@ -1,0 +1,1 @@
+java -jar "./generator-web/target/generator-web-3.0.jar" --server.port=1235

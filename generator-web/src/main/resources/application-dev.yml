@@ -78,7 +78,7 @@ logging:
   logback:
     rollingpolicy:
       file-name-pattern: ${LOG_FILE}.%d{yyyy-MM-dd}.%i.gz
-      max-file-size: 5MB
+      max-file-size: 2MB
 OEM:
   version: 2024.4
   header: SQL转Java JPA、MYBATIS实现类代码生成平台
