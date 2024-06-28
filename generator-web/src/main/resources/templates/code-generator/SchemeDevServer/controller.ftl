@@ -6,12 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.toone.core.base.controller.BaseController;
 import com.toone.core.utils.StringUtil;
-import ${classInfo.packageName}.model.po.MdProjectContacts;
-import ${classInfo.packageName}.model.vo.MdProjectVO;
+import ${classInfo.packageName}.model.vo.${classInfo.className}VO;
 import com.toone.core.response.Return;
-import ${classInfo.packageName}.model.po.MdProject;
-import ${classInfo.packageName}.model.param.MdProjectParam;
-import ${classInfo.packageName}.service.impl.MdProjectServiceImpl;
+import ${classInfo.packageName}.model.po.${classInfo.className};
+import ${classInfo.packageName}.model.param.${classInfo.className}Param;
+import ${classInfo.packageName}.service.impl.${classInfo.className}ServiceImpl;
 
 import java.util.List;
 </#if>
@@ -24,7 +23,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/${classInfo.className}")
 @CrossOrigin("*")
-public class ${classInfo.className}Controller extends BaseController<MdProject, MdProjectParam> {
+public class ${classInfo.className}Controller extends BaseController<${classInfo.className}, ${classInfo.className}Param> {
 
     @Autowired
     private ${classInfo.className}ServiceImpl ${classInfo.className?uncap_first}Service;

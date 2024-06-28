@@ -33,9 +33,19 @@ public class GeneratorController {
     @Autowired
     private GeneratorService generatorService;
 
-    @GetMapping("/")
+    @GetMapping("/test")
     public ModelAndView defaultPage() {
         return new ModelAndView("index-v2").addObject("value", valueUtil);
+    }
+
+    @GetMapping("/")
+    public ModelAndView defaultChatPage() {
+        return new ModelAndView("index").addObject("value", valueUtil);
+    }
+
+    @GetMapping("/tgcost")
+    public ModelAndView defaul_tgcost_aiPage() {
+        return new ModelAndView("tgcost_ai").addObject("value", valueUtil);
     }
 
     @GetMapping("/main")

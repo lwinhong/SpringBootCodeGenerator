@@ -49,7 +49,7 @@ public class GeneratorServiceImpl implements GeneratorService {
             fileName = "template.json";
 
         templateCpnfig = null;
-        try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(fileName);) {
+        try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(fileName)) {
             if (inputStream != null) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
                     templateCpnfig = reader.lines().collect(Collectors.joining(System.lineSeparator()));
