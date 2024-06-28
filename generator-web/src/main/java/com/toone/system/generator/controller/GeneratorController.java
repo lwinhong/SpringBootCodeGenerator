@@ -1,6 +1,8 @@
 package com.toone.system.generator.controller;
 
+import com.toone.system.generator.entity.ExceptionStatisticsInfo;
 import com.toone.system.generator.entity.ParamInfo;
+import com.toone.system.generator.entity.PluginStatisticsInfo;
 import com.toone.system.generator.entity.ReturnT;
 import com.toone.system.generator.service.CodeToFileService;
 import com.toone.system.generator.service.GeneratorService;
@@ -69,6 +71,19 @@ public class GeneratorController {
         } catch (Exception e) {
             return ReturnT.error("生成失败： " + e.getMessage());
         }
+    }
+
+    @PostMapping("/statistics/plugin")
+    @ResponseBody
+    public ReturnT statisticsPlugin(@RequestBody PluginStatisticsInfo info) {
+        log.info("插件统计：{}", info.toString());
+        return ReturnT.ok();
+    }
+
+    @PostMapping("/statistics/exception")
+    @ResponseBody
+    public ReturnT statisticsException(ExceptionStatisticsInfo info) {
+        return ReturnT.ok();
     }
 
     /**************************以下是后面根据业务需求添加的文件上传功能**********************/
