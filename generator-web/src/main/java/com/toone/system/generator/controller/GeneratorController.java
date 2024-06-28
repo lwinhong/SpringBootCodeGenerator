@@ -82,7 +82,7 @@ public class GeneratorController {
 
     @PostMapping("/statistics/exception")
     @ResponseBody
-    public ReturnT statisticsException(ExceptionStatisticsInfo info) {
+    public ReturnT statisticsException(@RequestBody ExceptionStatisticsInfo info) {
         return ReturnT.ok();
     }
 
